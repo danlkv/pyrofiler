@@ -1,7 +1,8 @@
 from time import time, sleep
 from contextlib import contextmanager
 import psutil
-from pyrofiler import threaded
+import os
+from pyrofiler.threaded import threaded_gen
 
 @contextmanager
 def timing(description: str) -> None:
@@ -72,5 +73,18 @@ def cpu_util(gen, description='CPU utilisation:'):
     res = None
     for res in gen:
         utils.append(psutil.cpu_percent(interval=0))
+    print(description, max(utils))
+    return res
+
+@profile_decorator
+def mem_util(gen, description='Mem utilisation:'):
+    utils = []
+    res = None
+    process = psutil.Process(os.getpid())
+    for res in gen:
+        #https://psutil.readthedocs.io/en/latest/index.html#psutil.Process.memory_info
+        mem_info = process.memory_info()
+        #print(mem_info)
+        utils.append(mem_info.rss)
     print(description, max(utils))
     return res

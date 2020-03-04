@@ -36,7 +36,7 @@ def threaded_with_queue(f, daemon=False):
 
     return wrap
 
-def threaded_result_gen(f):
+def threaded_gen(f):
     """ makes the function return a generator, 
     which iterates while thread is running and 
     yields return value of function at last step.
@@ -47,7 +47,7 @@ def threaded_result_gen(f):
     """
 
     def wrap(*args, **kwargs):
-        thr_f =  threaded(f)
+        thr_f =  threaded_with_queue(f)
         thread = thr_f(*args, **kwargs)
         while thread.is_alive():
             yield
