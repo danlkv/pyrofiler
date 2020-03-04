@@ -12,11 +12,13 @@ def timing(description: str) -> None:
     data[description] = ellapsed_time
     print(f"{description}: {ellapsed_time}")
 
-def timed(descr):
+def timed(descr, results={}):
     def  decor(f):
         def wrapped(*a,**kw):
-            with timing(descr):
-                return f(*a, **kw)
+            with timing(descr) as time_data:
+                x = f(*a, **kw)
+            results.update(time_data)
+            return x
         return wrapped
     return decor
 
