@@ -6,8 +6,10 @@ from pyrofiler import threaded
 @contextmanager
 def timing(description: str) -> None:
     start = time()
-    yield
+    data = {}
+    yield data
     ellapsed_time = time() - start
+    data[description] = ellapsed_time
     print(f"{description}: {ellapsed_time}")
 
 def timed(descr):
