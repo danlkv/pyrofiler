@@ -15,12 +15,24 @@ Pyrofiler
 
 
 
+Toolset for granular memory and cpu live profiling
 
-Toolset for granular and live profiling
 
 
-* Free software: MIT license
-* Documentation: https://pyrofiler.readthedocs.io.
+Similar products
+----------------
+
+- Syrpy https://github.com/jeetsukumaran/Syrupy 
+- Scalene https://github.com/emeryberger/scalene
+- ... and lots of `others <https://github.com/matuskosut/python-perfres/>`_
+
+Problems
+--------
+Either you have a cli tool that profiles memory and cpu, but **no code api for granular data** 
+
+or you have stuff like decorators and **no memory profiling**
+
+Having a live dashboard would help also, use https://github.com/libvis for that
 
 
 Features
