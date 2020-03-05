@@ -3,6 +3,7 @@ from pyrofiler.profilers import (
     timed
     , cpu_util
     , mem_util
+    , printer
 )
 
 class Profiler:
@@ -13,10 +14,11 @@ class Profiler:
         return timed(desc)
 
     def cpu(self, desc):
-        return cpu_util(description=desc)
+        return cpu_util(callback=self.cb, description=desc)
 
     def mem(self, desc):
-        return mem_util(description=desc)
+        return mem_util(callback=self.cb, description=desc)
 
     def cb(self, result, **kwargs):
-        print('profiler!,', result)
+        printer(result, **kwargs)
+        self.data['description'] = result
