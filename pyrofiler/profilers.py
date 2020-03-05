@@ -17,7 +17,7 @@ def timing(description: str, callback=printer) -> None:
     callback(ellapsed_time, description=description)
 
 def timed(descr, callback=printer):
-    def  decor(func):
+    def decor(func):
         @wraps(func)
         def wrapped(*a,**kw):
             with timing(descr, callback=callback):
