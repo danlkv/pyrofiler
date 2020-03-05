@@ -5,22 +5,23 @@ import psutil
 import os
 from pyrofiler.threaded import threaded_gen
 
-@contextmanager
-def timing(description: str) -> None:
-    start = time()
-    data = {}
-    yield data
-    ellapsed_time = time() - start
-    data[description] = ellapsed_time
-    print(f"{description}: {ellapsed_time}")
+def printer(result, description='Profile results'):
+    print(description, ':', result)
 
-def timed(descr, results={}):
+
+@contextmanager
+def timing(description: str, callback=printer) -> None:
+    start = time()
+    yield
+    ellapsed_time = time() - start
+    callback(ellapsed_time, description=description)
+
+def timed(descr, callback=printer):
     def  decor(func):
         @wraps(func)
         def wrapped(*a,**kw):
-            with timing(descr) as time_data:
+            with timing(descr, callback=callback):
                 x = func(*a, **kw)
-            results.update(time_data)
             return x
         return wrapped
     return decor
@@ -61,10 +62,6 @@ def profile_decorator(profiler):
             return wrap
         return _decorator
     return _wrapper
-
-
-def printer(result, description='Profile results'):
-    print(description, ':', result)
 
 @profile_decorator
 def proc_count(gen, callback=printer, **kwargs):
