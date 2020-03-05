@@ -1,5 +1,6 @@
 from time import time, sleep
 from contextlib import contextmanager
+from functools import wraps
 import psutil
 import os
 from pyrofiler.threaded import threaded_gen
@@ -14,17 +15,19 @@ def timing(description: str) -> None:
     print(f"{description}: {ellapsed_time}")
 
 def timed(descr, results={}):
-    def  decor(f):
+    def  decor(func):
+        @wraps(func)
         def wrapped(*a,**kw):
             with timing(descr) as time_data:
-                x = f(*a, **kw)
+                x = func(*a, **kw)
             results.update(time_data)
             return x
         return wrapped
     return decor
 
 def profile_decorator(profiler):
-    """ An abstract decorator factory.
+    """ Factory of profilling decorator functions
+
         Takes a function `profiler` and returns a decorator,
         which takes a function to profile, `profilee`,
         starts it in separate thread and
@@ -42,21 +45,28 @@ def profile_decorator(profiler):
                 return ret
 
         Returns:
-            profiler_kwargs -> callable -> wrapped_callable
+            profiler_kwargs -> decorator -> wrapped_callable
     """
-    def wrapper(**profiler_kw):
-        def decorator(profilee):
+
+    def _wrapper(**profiler_kw):
+        def _decorator(profilee):
+            """Call profilee in a thread, while running profiler."""
+            @wraps(profilee)
             def wrap(*args, **kwargs):
                 thr_gen = threaded_gen(profilee)
                 gen = thr_gen(*args, **kwargs)
                 res = profiler(gen, **profiler_kw)
                 return res
             return wrap
-        return decorator
-    return wrapper
+        return _decorator
+    return _wrapper
+
+def printer(result, description='Profile results'):
+    print(description, ':', result)
 
 @profile_decorator
-def proc_count(gen, description='Process max count:'):
+def proc_count(gen, callback=printer, **kwargs):
+    kwargs = {**{'description': 'Process count'}, **kwargs}
     pnames = set()
     res = None
     for res in gen:
@@ -64,20 +74,24 @@ def proc_count(gen, description='Process max count:'):
         names = {name + str(i) for i, name in enumerate(names) 
                  if 'python' in name}
         pnames = pnames | names
-    print(description, len(pnames))
+    profiling_result = len(pnames)
+    callback(profiling_result, **kwargs)
     return res
 
 @profile_decorator
-def cpu_util(gen, description='CPU utilisation:'):
+def cpu_util(gen, callback=printer, **kwargs):
+    kwargs = {**{'description': 'CPU utilization'}, **kwargs}
     utils = []
     res = None
     for res in gen:
         utils.append(psutil.cpu_percent(interval=0))
-    print(description, max(utils))
+    profiling_result = max(utils)
+    callback(profiling_result, **kwargs)
     return res
 
 @profile_decorator
-def mem_util(gen, description='Mem utilisation:'):
+def mem_util(gen, callback=printer, **kwargs):
+    kwargs = {**{'description': 'Memory utilization'}, **kwargs}
     utils = []
     res = None
     process = psutil.Process(os.getpid())
@@ -86,5 +100,6 @@ def mem_util(gen, description='Mem utilisation:'):
         mem_info = process.memory_info()
         #print(mem_info)
         utils.append(mem_info.rss)
-    print(description, max(utils))
+    profiling_result = max(utils)
+    callback(profiling_result, **kwargs)
     return res

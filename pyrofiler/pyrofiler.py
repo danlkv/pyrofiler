@@ -9,11 +9,14 @@ class Profiler:
     def __init__(self):
         self.data = {}
 
-    def timing(self, description):
-        return timed(description)
+    def timing(self, desc):
+        return timed(desc)
 
-    def cpu(self, description):
-        return cpu_util(description=description)
+    def cpu(self, desc):
+        return cpu_util(description=desc)
 
-    def mem(self, description):
-        return mem_util(description=description)
+    def mem(self, desc):
+        return mem_util(description=desc)
+
+    def cb(self, result, **kwargs):
+        print('profiler!,', result)

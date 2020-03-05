@@ -3,8 +3,9 @@ import queue
 from time import sleep
 
 def threaded(daemon=False):
-    """
-    Return a function that starts in thread and returns the thead object
+    """Start a function in a thread.
+        Returns:
+            threading.Thread: thread object with function
     """
     def _decorator(func):
         def _wrapped(*args, **kwargs):
@@ -15,26 +16,31 @@ def threaded(daemon=False):
         return _wrapped
     return _decorator
 
-def threaded_with_queue(f, daemon=False):
+def threaded_with_queue(func, daemon=False):
+    """Start a function in a thread, return result queue
+
+    Args:
+        func (function): function to call
+        daemon (bool): whether the thread should be daemon
+
+    Returns:
+        function: function that starts a thread with `func`
+            and returns tuple (threading.Thread, queue.Queue)
+    """
+
     def wrapped_f(q, *args, **kwargs):
-        '''this function calls the decorated function and puts the 
-        result in a queue'''
-        ret = f(*args, **kwargs)
+        """"Call `func` and put result result in the queue."""
+        ret = func(*args, **kwargs)
         q.put(ret)
 
-    def wrap(*args, **kwargs):
-        '''this is the function returned from the decorator. It fires off
-        wrapped_f in a new thread and returns the thread object with
-        the result queue attached'''
-
+    def _wrapped(*args, **kwargs):
         q = queue.Queue()
         t = Thread(target=wrapped_f, args=(q,)+args, kwargs=kwargs)
         t.daemon = daemon
         t.start()
-        t.result_queue = q
-        return t
+        return t, q
 
-    return wrap
+    return _wrapped
 
 def threaded_gen(f):
     """ makes the function return a generator, 
@@ -47,14 +53,14 @@ def threaded_gen(f):
     """
 
     def wrap(*args, **kwargs):
-        thr_f =  threaded_with_queue(f)
-        thread = thr_f(*args, **kwargs)
+        thr_f = threaded_with_queue(f)
+        thread, result_queue = thr_f(*args, **kwargs)
         while thread.is_alive():
             yield
             # TODO: would be nice to set up the timedelta
             sleep(.1)
         thread.join()
-        yield thread.result_queue.get()
+        yield result_queue.get()
         return
     return wrap
 
