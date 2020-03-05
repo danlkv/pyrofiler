@@ -26,6 +26,43 @@ def timed(descr, results={}):
     return decor
 
 
+def profile_decorator(profiler):
+    """ Factory of profilling decorator functions
+
+        Takes a function `profiler` and returns a decorator,
+        which takes a function to profile, `profilee`,
+        starts it in separate thread and
+        passes `profiler` a generator that iterates
+        while the therad with `profilee` is running.
+        Last vaulue of the generator will be a return value of `profilee`
+
+        Usage:
+            @profile_decorator
+            def cpu_load(gen, output_fmt='cpu_vals='):
+                cpus = []
+                while ret in gen:
+                    cpus.append(get_cpu_util())
+                print(output_fmt, cpus)
+                return ret
+
+        Returns:
+            profiler_kwargs -> decorator -> wrapped_callable
+    """
+
+    def _wrapper(**profiler_kw):
+        def _decorator(profilee):
+            """Call profilee in a thread, while running profiler."""
+            @wraps(profilee)
+            def wrap(*args, **kwargs):
+                thr_gen = threaded_gen(profilee)
+                gen = thr_gen(*args, **kwargs)
+                res = profiler(gen, **profiler_kw)
+                return res
+            return wrap
+        return _decorator
+    return _wrapper
+
+
 def printer(result, description='Profile results'):
     print(description, ':', result)
 
@@ -69,39 +106,3 @@ def mem_util(gen, callback=printer, **kwargs):
     callback(profiling_result, **kwargs)
     return res
 
-
-def profile_decorator(profiler):
-    """ Factory of profilling decorator functions
-
-        Takes a function `profiler` and returns a decorator,
-        which takes a function to profile, `profilee`,
-        starts it in separate thread and
-        passes `profiler` a generator that iterates
-        while the therad with `profilee` is running.
-        Last vaulue of the generator will be a return value of `profilee`
-
-        Usage:
-            @profile_decorator
-            def cpu_load(gen, output_fmt='cpu_vals='):
-                cpus = []
-                while ret in gen:
-                    cpus.append(get_cpu_util())
-                print(output_fmt, cpus)
-                return ret
-
-        Returns:
-            profiler_kwargs -> decorator -> wrapped_callable
-    """
-
-    def _wrapper(**profiler_kw):
-        def _decorator(profilee):
-            """Call profilee in a thread, while running profiler."""
-            @wraps(profilee)
-            def wrap(*args, **kwargs):
-                thr_gen = threaded_gen(profilee)
-                gen = thr_gen(*args, **kwargs)
-                res = profiler(gen, **profiler_kw)
-                return res
-            return wrap
-        return _decorator
-    return _wrapper
