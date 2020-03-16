@@ -21,7 +21,7 @@ Toolset for granular memory and cpu live profiling
 Quick start
 -----------
 
-Contextmanager that measers time of execution
+Contextmanager that measures time of execution
 
 .. code-block:: python
 
