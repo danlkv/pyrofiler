@@ -86,7 +86,7 @@ Aggregate the results in common context:
     {'Time 1': 1.0011215209960938, 'Time 2': 1.5020403861999512}
 
 You can use other actions, for example appending results to some list in data.
-Check the `documentation <https://pyrofiler.readthedocs.io/en/latest/usage.html/>`_ for more use cases
+Check the `documentation <https://pyrofiler.readthedocs.io/en/latest/usage.html>`_ for more use cases
 
 
 Similar products
