@@ -10,11 +10,11 @@ def printer(result, description='Profile results'):
 
 
 @contextmanager
-def timing(description: str, callback=printer) -> None:
+def timing(*args, callback=printer, **kwargs) -> None:
     start = time()
     yield
     ellapsed_time = time() - start
-    callback(ellapsed_time, description=description)
+    callback(ellapsed_time, *args, **kwargs)
 
 def timed(descr, callback=printer):
     def decor(func):
@@ -50,22 +50,21 @@ def profile_decorator(profiler):
             profiler_kwargs -> decorator -> wrapped_callable
     """
 
-    def _wrapper(**profiler_kw):
+    def _wrapper(*profiler_args, **profiler_kw):
         def _decorator(profilee):
             """Call profilee in a thread, while running profiler."""
             @wraps(profilee)
             def wrap(*args, **kwargs):
                 thr_gen = threaded_gen(profilee)
                 gen = thr_gen(*args, **kwargs)
-                res = profiler(gen, **profiler_kw)
+                res = profiler(gen, *profiler_args, **profiler_kw)
                 return res
             return wrap
         return _decorator
     return _wrapper
 
 @profile_decorator
-def proc_count(gen, callback=printer, **kwargs):
-    kwargs = {**{'description': 'Process count'}, **kwargs}
+def proc_count(gen, *args, callback=printer, **kwargs):
     pnames = set()
     res = None
     for res in gen:
@@ -74,23 +73,21 @@ def proc_count(gen, callback=printer, **kwargs):
                  if 'python' in name}
         pnames = pnames | names
     profiling_result = len(pnames)
-    callback(profiling_result, **kwargs)
+    callback(profiling_result, *args, **kwargs)
     return res
 
 @profile_decorator
-def cpu_util(gen, callback=printer, **kwargs):
-    kwargs = {**{'description': 'CPU utilization'}, **kwargs}
+def cpu_util(gen, *args, callback=printer, **kwargs):
     utils = []
     res = None
     for res in gen:
         utils.append(psutil.cpu_percent(interval=0))
     profiling_result = max(utils)
-    callback(profiling_result, **kwargs)
+    callback(profiling_result, *args, **kwargs)
     return res
 
 @profile_decorator
-def mem_util(gen, callback=printer, **kwargs):
-    kwargs = {**{'description': 'Memory utilization'}, **kwargs}
+def mem_util(gen, *args, callback=printer, **kwargs):
     utils = []
     res = None
     process = psutil.Process(os.getpid())
@@ -100,6 +97,6 @@ def mem_util(gen, callback=printer, **kwargs):
         #print(mem_info)
         utils.append(mem_info.rss)
     profiling_result = max(utils)
-    callback(profiling_result, **kwargs)
+    callback(profiling_result, *args, **kwargs)
     return res
 

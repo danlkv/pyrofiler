@@ -21,22 +21,20 @@ class Profiler:
         return timed(desc, callback=self.cb)
 
     def cpu(self, desc):
-        return cpu_util(callback=self.cb, description=desc)
+        return cpu_util(desc, callback=self.cb)
 
     def mem(self, desc):
-        return mem_util(callback=self.cb, description=desc)
+        return mem_util(desc, callback=self.cb)
 
-    def cb(self, result, **kwargs):
-        printer(result, **kwargs)
-        descr = kwargs.get('description')
-        self.data[descr] = result
+    def cb(self, result, label, **kwargs):
+        printer(result, label, **kwargs)
+        self.data[label] = result
 
-    def _cb_append(self, result, **kwargs):
-        printer(result, **kwargs)
-        descr = kwargs.get('description')
+    def _cb_append(self, result, label, **kwargs):
+        printer(result, label, **kwargs)
         #
-        x = self.data.get(descr)
+        x = self.data.get(label)
         if x is None:
-            self.data[descr] = []
+            self.data[label] = []
 
-        self.data[descr].append(result)
+        self.data[label].append(result)
