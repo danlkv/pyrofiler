@@ -58,6 +58,35 @@ Decorators for profiling functions
     Time elapsed : 0.13478374481201172
     Cpu usage : 29.4
 
+Aggregate the results in common context:
+
+.. code-block:: python
+
+    # examples/profile_with_context.py
+    from pyrofiler import Profiler
+    import time
+
+    prof = Profiler()
+
+    with prof.timing('Time 1'):
+        time.sleep(1)
+
+    with prof.timing('Time 2'):
+        time.sleep(1.5)
+
+    print('Profiling data recorded:')
+    print(prof.data)
+
+.. code-block:: console
+
+    $ python profile_with_context.py                                                    
+    Time 1 : 1.0011215209960938
+    Time 2 : 1.5020403861999512
+    Profiling data recorded:
+    {'Time 1': 1.0011215209960938, 'Time 2': 1.5020403861999512}
+
+You can use other actions, for example appending results to some list in data.
+Check the `documentation <https://pyrofiler.readthedocs.io/en/latest/usage.html/>`_ for more use cases
 
 
 Similar products
