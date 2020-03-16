@@ -6,6 +6,8 @@ To use Pyrofiler in a project::
 
     import pyrofiler
 
+How pyrofiler works
+-------------------
 
 All pyrofiler's tools work in a same fashion: after calling the function (or code if it's a contextmanager) 
 and measuring data, a `callback` object is called.
@@ -39,3 +41,14 @@ For example, this is the code for timing tool:
         ellapsed_time = time() - start
         callback(ellapsed_time, *args, **kwargs)
 
+
+Storing results in context
+--------------------------
+
+There is a special class `pyrofiler.Profiler` that uses 
+special type of callbacks to aggregate data from all calls of tools.
+
+.. code-block:: python 
+
+    def cb(self, result, label, **kwargs):
+        self.data[label] = result
