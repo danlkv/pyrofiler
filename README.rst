@@ -18,6 +18,47 @@ Pyrofiler
 Toolset for granular memory and cpu live profiling
 
 
+Quick start
+-----------
+
+Contextmanager that measers time of execution
+
+.. code-block:: python
+
+    # examples/simple_profile.py
+    import pyrofiler
+    import time
+
+    with pyrofiler.timing('Time elapsed'):
+        time.sleep(1)
+
+.. code-block:: console
+
+    $ python simple_profile.py
+    Time elapsed : 1.001563310623169
+
+
+Decorators for profiling functions
+
+.. code-block:: python
+
+    # examples/simple_profile_cpu.py
+    import pyrofiler
+
+    @pyrofiler.cpu_util(description='Cpu usage')
+    @pyrofiler.timed('Time elapsed')
+    def sum_series(x, N):
+        return sum([x**i/i for i in range(1, N)])
+
+    sum_series(.3, 1000_000)
+
+.. code-block:: console
+
+    $ python simple_profile_cpu.py
+    Time elapsed : 0.13478374481201172
+    Cpu usage : 29.4
+
+
 
 Similar products
 ----------------
