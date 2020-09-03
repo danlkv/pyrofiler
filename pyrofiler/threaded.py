@@ -30,7 +30,11 @@ def threaded_with_queue(func, daemon=False):
 
     def wrapped_f(q, *args, **kwargs):
         """"Call `func` and put result result in the queue."""
-        ret = func(*args, **kwargs)
+        try:
+            ret = func(*args, **kwargs)
+        except Exception as e:
+            q.put(e)
+
         q.put(ret)
 
     def _wrapped(*args, **kwargs):
@@ -60,7 +64,10 @@ def threaded_gen(f):
             # TODO: would be nice to set up the timedelta
             sleep(.1)
         thread.join()
-        yield result_queue.get()
+        res = result_queue.get()
+        if isinstance(res, Exception):
+            raise res
+        yield res
         return
     return wrap
 
