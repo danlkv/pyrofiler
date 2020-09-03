@@ -2,7 +2,7 @@
 
 __author__ = """Dan Lykov"""
 __email__ = 'lkv97dn@gmail.com'
-__version__ = '0.1.4'
+__version__ = '0.1.5'
 
 from pyrofiler.threaded import threaded
 from pyrofiler.pyrofiler import Profiler
