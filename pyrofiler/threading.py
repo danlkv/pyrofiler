@@ -3,6 +3,41 @@ import queue
 from time import sleep
 
 
+class KillPill:
+    def __init__(self, on_stop, get_result):
+        self.on_stop = on_stop
+        self.get_result = get_result
+
+    def stop(self):
+        self.on_stop()
+
+    @property
+    def result(self):
+        return self.get_result()
+
+
+class WatchdogGen:
+    """
+    An indefinitely-running generator
+    with a stop() method
+    """
+    def __init__(self):
+        self.running = True
+        self.started = False
+
+    def __iter__(self):
+        self.started = True
+        while True:
+            if self.running:
+                yield
+                sleep(.1)
+            else:
+                break
+
+    def stop(self):
+        self.running = False
+
+
 def start_in_thread(f, *args, **kwargs):
     """
     Start a function in thread.
@@ -20,7 +55,7 @@ def start_in_thread(f, *args, **kwargs):
             generator
     """
     gen = WatchdogGen()
-    func = pyrofiler.threaded_with_queue(f)
+    func = threaded_with_queue(f)
     thread, queue = func(gen, *args, **kwargs)
 
     def _onstop():
@@ -28,7 +63,7 @@ def start_in_thread(f, *args, **kwargs):
         thread.join()
 
     pill = KillPill(on_stop=_onstop, get_result=queue.get)
-    #st = time.time() #--
+    #st = time() #--
     while True:
         if gen.started:
             break
@@ -36,8 +71,8 @@ def start_in_thread(f, *args, **kwargs):
             #print('wait for start')
             # A very small number is enough, since 
             # we just need to trigger a thread switch
-            time.sleep(0.0002)
-    #print('overhead thread start', time.time()-st) #--
+            sleep(0.0002)
+    #print('overhead thread start', time()-st) #--
 
     return pill
 

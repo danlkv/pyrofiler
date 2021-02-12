@@ -5,38 +5,6 @@ import pyrofiler
 import psutil, os
 
 
-class KillPill:
-    def __init__(self, on_stop, get_result):
-        self.on_stop = on_stop
-        self.get_result = get_result
-
-    def stop(self):
-        self.on_stop()
-
-    @property
-    def result(self):
-        return self.get_result()
-
-class WatchdogGen:
-    """
-    An indefinitely-running generator
-    with a stop() method
-    """
-    def __init__(self):
-        self.running = True
-        self.started = False
-
-    def __iter__(self):
-        self.started = True
-        while True:
-            if self.running:
-                yield
-                time.sleep(.1)
-            else:
-                break
-
-    def stop(self):
-        self.running = False
 
 
 def measure2decor(measure):
@@ -49,9 +17,8 @@ def measure2decor(measure):
                 try:
                     ret = profilee(*args, **kwargs)
                 except BaseException as e:
+                    killpill.stop()
                     raise
-
-
                 killpill.stop()
                 res = killpill.get_result()
                 if isinstance(res, Exception):
