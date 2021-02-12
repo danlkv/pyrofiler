@@ -1,5 +1,6 @@
 from time import time, sleep
 from contextlib import contextmanager
+import pyrofiler
 from functools import wraps
 import psutil
 import os
@@ -63,43 +64,6 @@ def profile_decorator(profiler):
         return _decorator
     return _wrapper
 
-@profile_decorator
-def proc_count(gen, *args, callback=printer, **kwargs):
-    pnames = set()
-    res = None
-    for res in gen:
-        names = [proc.name() for proc in psutil.process_iter()]
-        names = {name + str(i) for i, name in enumerate(names) 
-                 if 'python' in name}
-        pnames = pnames | names
-    profiling_result = len(pnames)
-    callback(profiling_result, *args, **kwargs)
-    return res
-
-@profile_decorator
-def cpu_util(gen, *args, callback=printer, **kwargs):
-    utils = []
-    res = None
-    for res in gen:
-        utils.append(psutil.cpu_percent(interval=0))
-    profiling_result = max(utils)
-    callback(profiling_result, *args, **kwargs)
-    return res
-
-@profile_decorator
-def mem_util(gen, *args, subtract_overhead=True, callback=printer, **kwargs):
-    utils = []
-    res = None
-    process = psutil.Process(os.getpid())
-    overhead = process.memory_info().rss
-    for res in gen:
-        #https://psutil.readthedocs.io/en/latest/index.html#psutil.Process.memory_info
-        mem_info = process.memory_info()
-        #print(mem_info)
-        utils.append(mem_info.rss)
-    profiling_result = max(utils)
-    if subtract_overhead:
-        profiling_result -= overhead
-    callback(profiling_result, *args, **kwargs)
-    return res
-
+proc_count = profile_decorator(pyrofiler.measures.proc_count)
+cpu_util = profile_decorator(pyrofiler.measures.cpu_util)
+mem_util = profile_decorator(pyrofiler.measures.mem_util)
