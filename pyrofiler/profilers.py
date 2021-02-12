@@ -4,7 +4,7 @@ import pyrofiler
 from functools import wraps
 import psutil
 import os
-from pyrofiler.threaded import threaded_gen
+from pyrofiler.threading import threaded_gen
 
 def printer(result, description='Profile results'):
     print(description, ':', result)

@@ -39,57 +39,18 @@ class WatchdogGen:
         self.running = False
 
 
-def start_in_thread(f, *args, **kwargs):
-    """
-    Start a function in thread.
-
-    The first argument of function will be generator,
-    which stops when function is asked to exit
-
-    Args:
-        f (callable): function that accepts
-             a generator as first argument and
-             returns shortly after generotor stops
-
-    Returns:
-        killpill: object with .stop() method which stops the
-            generator
-    """
-    gen = WatchdogGen()
-    func = pyrofiler.threaded_with_queue(f)
-    thread, queue = func(gen, *args, **kwargs)
-
-    def _onstop():
-        gen.stop()
-        thread.join()
-
-    pill = KillPill(on_stop=_onstop, get_result=queue.get)
-    #st = time.time() #--
-    while True:
-        if gen.started:
-            break
-        else:
-            #print('wait for start')
-            # A very small number is enough, since 
-            # we just need to trigger a thread switch
-            time.sleep(0.0002)
-    #print('overhead thread start', time.time()-st) #--
-
-    return pill
-
-
 def measure2decor(measure):
     def _wrapper(*m_args, **m_kwargs):
         # Measure will get *args, **kwargs from this call
         def _decorator(profilee):
             @wraps(profilee)
             def wrap(*args, **kwargs):
-                killpill = start_in_thread(measure, *m_args, **m_kwargs)
+                killpill = pyrofiler.threading.start_in_thread(measure, *m_args, **m_kwargs)
                 try:
                     ret = profilee(*args, **kwargs)
                 except BaseException as e:
-                    killpill.stop()
                     raise
+
 
                 killpill.stop()
                 res = killpill.get_result()
