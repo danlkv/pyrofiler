@@ -89,6 +89,37 @@ You can use other actions, for example appending results to some list in data.
 Check the `documentation <https://pyrofiler.readthedocs.io/en/latest/usage.html>`_ for more use cases
 
 
+Design
+------
+
+There are following types of objects in pyrofiler:
+
+#. `Measures`, which are run as a context manager
+
+#. `Decorators`, that are based on `measures`
+
+#. `Profiler` class that uses `decorators` to aggregate data
+
+
+Callbacks
+=========
+
+The `decorators` have an optional argument ``callback``,
+to which you can pass a function that will handle the data.
+The function will be passed profiling results as a first argument,
+as well as any other arguments that you provided to original `decorator`.
+
+Here, a custom ``spice`` argument is provided
+
+.. code-block:: python
+
+    def print_spicy_time(time, spice):
+        print(f'Spice {spice} took {time} seconds')
+
+    @pyrofiler.timed(spice='spicy', callback=print_spicy_time)
+    def spicy_sleep():
+        time.sleep(10)
+
 Similar products
 ----------------
 

@@ -32,10 +32,10 @@ def threaded_with_queue(func, daemon=False):
         """"Call `func` and put result result in the queue."""
         try:
             ret = func(*args, **kwargs)
+            q.put(ret)
         except Exception as e:
             q.put(e)
 
-        q.put(ret)
 
     def _wrapped(*args, **kwargs):
         q = queue.Queue()

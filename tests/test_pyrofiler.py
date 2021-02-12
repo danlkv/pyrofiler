@@ -70,22 +70,22 @@ def test_mem(capsys):
         # list datastructure costs 8 bytes per item
         # integer costs 28 bytes
         consume_memory = list(range(consume_bytes//(28+8)))
-        print(sys.getsizeof(consume_memory))
+        #print(sys.getsizeof(consume_memory))
         print('better sizeof', sizeof(consume_memory))
         # wait so profiler catches the stuff
-        time.sleep(0.5)
+        time.sleep(0.3)
     x = bench(consume)
     # --
 
     out, err = capsys.readouterr()
     print(out)
-    assert descr in out
+    assert descr in p.data.keys()
     # Last number is the value
     # pure Python has about 24MB overhead
     # results in 5x size of actual valriable (75M - 24M). Why? (numpy does not do this)
-    measure = float(out.split()[-1])
+    measure = p.data[descr]
     print('Memory measure', measure)
-    assert np.isclose(measure, consume+1000_000, rtol=1e-2)
+    assert np.isclose(measure, consume+1000_000, rtol=9e-2)
 
 def test_mem_np(capsys):
     descr = 'test descr mem'
@@ -101,16 +101,16 @@ def test_mem_np(capsys):
         consume_memory = np.ones(consume_bytes//8)
         print(sys.getsizeof(consume_memory))
         # wait so profiler catches the stuff
-        time.sleep(0.5)
+        time.sleep(0.3)
     x = bench(consume)
     # --
 
     out, err = capsys.readouterr()
     print(out)
-    assert descr in out
+    assert descr in p.data.keys()
     # Last number is the value
     # For some reason, the actual memory usage is smaller than
     # expected 10M
-    measure = float(out.split()[-1])
+    measure = p.data[descr]
     print('Memory measure', measure)
-    assert np.isclose(measure, consume, rtol=1e-2)
+    assert np.isclose(measure, consume, rtol=3e-2)

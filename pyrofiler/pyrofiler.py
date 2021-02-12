@@ -1,5 +1,5 @@
 """Main module."""
-from pyrofiler.profilers import (
+from pyrofiler import (
     timed
     , timing
     , cpu_util
@@ -16,7 +16,7 @@ class Profiler:
             self._callback = callback
 
     def use_append(self):
-        self.cb = self._cb_append
+        self._callback = self._cb_append
 
     def timing(self, desc, *args, **kwargs):
         return timing(desc, callback=self._callback, *args, **kwargs)
@@ -25,10 +25,10 @@ class Profiler:
         return timed(desc, callback=self._callback, *args, **kwargs)
 
     def cpu(self, desc, *args, **kwargs):
-        return cpu_util(desc, callback=self._callback, *args, **kwargs)
+        return cpu_util(desc, *args, callback=self._callback, **kwargs)
 
     def mem(self, desc, *args, **kwargs):
-        return mem_util(desc, callback=self._callback, *args, **kwargs)
+        return mem_util(desc, *args, callback=self._callback, *kwargs)
 
     def cb(self, result, label, **kwargs):
         printer(result, label, **kwargs)

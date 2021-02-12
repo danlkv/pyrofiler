@@ -27,7 +27,7 @@ def mem_util(gen, *args, subtract_overhead=True, callback=printer, **kwargs):
     for res in gen:
         #https://psutil.readthedocs.io/en/latest/index.html#psutil.Process.memory_info
         mem_info = process.memory_info()
-        #print(mem_info)
+        print(mem_info)
         utils.append(mem_info.rss)
     profiling_result = max(utils)
     if subtract_overhead:
