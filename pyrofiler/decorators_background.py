@@ -5,8 +5,6 @@ import pyrofiler
 import psutil, os
 
 
-
-
 def measure2decor(measure):
     def _wrapper(*m_args, **m_kwargs):
         # Measure will get *args, **kwargs from this call

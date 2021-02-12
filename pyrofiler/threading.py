@@ -1,6 +1,7 @@
 from threading import Thread
 import queue
 from time import sleep
+from functools import lru_cache
 
 
 class KillPill:
@@ -62,7 +63,13 @@ def start_in_thread(f, *args, **kwargs):
         gen.stop()
         thread.join()
 
-    pill = KillPill(on_stop=_onstop, get_result=queue.get)
+    pill = KillPill(
+        on_stop=_onstop,
+        # The result is retreived once, but can be requested
+        # multiple times. Will break if measure returns
+        # numpy arrays, however.
+        get_result=lru_cache(queue.get)
+    )
     #st = time() #--
     while True:
         if gen.started:

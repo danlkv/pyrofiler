@@ -10,24 +10,6 @@ def printer(result, description='Profile results'):
     print(description, ':', result)
 
 
-@contextmanager
-def timing(*args, callback=printer, **kwargs) -> None:
-    start = time()
-    yield
-    ellapsed_time = time() - start
-    callback(ellapsed_time, *args, **kwargs)
-
-def timed(*args, callback=printer, **kwargs):
-    def decor(func):
-        @wraps(func)
-        def wrapped(*a,**kw):
-            with timing(*args, callback=callback, **kwargs):
-                x = func(*a, **kw)
-            return x
-        return wrapped
-    return decor
-
-
 def profile_decorator(profiler):
     """ Factory of profilling decorator functions
 
@@ -63,6 +45,20 @@ def profile_decorator(profiler):
             return wrap
         return _decorator
     return _wrapper
+
+
+def timed(*args, callback=printer, **kwargs):
+    def decor(func):
+        @wraps(func)
+        def wrapped(*a,**kw):
+            start = time()
+            x = func(*a, **kw)
+            ellapsed_time = time() - start
+            callback(ellapsed_time, *args, **kwargs)
+            return x
+        return wrapped
+    return decor
+
 
 proc_count = profile_decorator(pyrofiler.measures.proc_count)
 cpu_util = profile_decorator(pyrofiler.measures.cpu_util)
