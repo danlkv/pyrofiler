@@ -16,11 +16,11 @@ def timing(*args, callback=printer, **kwargs) -> None:
     ellapsed_time = time() - start
     callback(ellapsed_time, *args, **kwargs)
 
-def timed(descr, callback=printer):
+def timed(*args, callback=printer, **kwargs):
     def decor(func):
         @wraps(func)
         def wrapped(*a,**kw):
-            with timing(descr, callback=callback):
+            with timing(*args, callback=callback, **kwargs):
                 x = func(*a, **kw)
             return x
         return wrapped
@@ -87,16 +87,19 @@ def cpu_util(gen, *args, callback=printer, **kwargs):
     return res
 
 @profile_decorator
-def mem_util(gen, *args, callback=printer, **kwargs):
+def mem_util(gen, *args, subtract_overhead=True, callback=printer, **kwargs):
     utils = []
     res = None
     process = psutil.Process(os.getpid())
+    overhead = process.memory_info().rss
     for res in gen:
         #https://psutil.readthedocs.io/en/latest/index.html#psutil.Process.memory_info
         mem_info = process.memory_info()
         #print(mem_info)
         utils.append(mem_info.rss)
     profiling_result = max(utils)
+    if subtract_overhead:
+        profiling_result -= overhead
     callback(profiling_result, *args, **kwargs)
     return res
 

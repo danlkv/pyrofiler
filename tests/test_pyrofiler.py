@@ -5,9 +5,15 @@ import sys
 import numpy as np
 from math import sin, cos, radians
 import time
+import pytest
 
 from pyrofiler.pyrofiler import Profiler
 
+def sizeof(obj):
+    size = sys.getsizeof(obj)
+    if isinstance(obj, dict): return size + sum(map(sizeof, obj.keys())) + sum(map(sizeof, obj.values()))
+    if isinstance(obj, (list, tuple, set, frozenset)): return size + sum(map(sizeof, obj))
+    return size
 
 def test_time(capsys):
     descr = 'test descr'
@@ -59,10 +65,15 @@ def test_mem(capsys):
     # -- actual test
     @p.mem(descr)
     def bench(consume_bytes):
-        consume_memory = list(range(consume_bytes//8))
-        #print(sys.getsizeof(consume_memory))
+        # sys.getsizeof may not be what I want
+        # https://nedbatchelder.com/blog/202002/sysgetsizeof_is_not_what_you_want.html
+        # list datastructure costs 8 bytes per item
+        # integer costs 28 bytes
+        consume_memory = list(range(consume_bytes//(28+8)))
+        print(sys.getsizeof(consume_memory))
+        print('better sizeof', sizeof(consume_memory))
         # wait so profiler catches the stuff
-        time.sleep(0.01)
+        time.sleep(0.5)
     x = bench(consume)
     # --
 
@@ -72,8 +83,9 @@ def test_mem(capsys):
     # Last number is the value
     # pure Python has about 24MB overhead
     # results in 5x size of actual valriable (75M - 24M). Why? (numpy does not do this)
-    assert float(out.split()[-1]) > consume
-
+    measure = float(out.split()[-1])
+    print('Memory measure', measure)
+    assert np.isclose(measure, consume+1000_000, rtol=1e-2)
 
 def test_mem_np(capsys):
     descr = 'test descr mem'
@@ -84,10 +96,12 @@ def test_mem_np(capsys):
     @p.mem(descr)
     def bench(consume_bytes):
         # which to use for np: rss or virt? https://github.com/dask/distributed/issues/1409
+
+        # ones take less memory in fact
         consume_memory = np.ones(consume_bytes//8)
-        #print(sys.getsizeof(consume_memory))
+        print(sys.getsizeof(consume_memory))
         # wait so profiler catches the stuff
-        time.sleep(0.1)
+        time.sleep(0.5)
     x = bench(consume)
     # --
 
@@ -95,6 +109,8 @@ def test_mem_np(capsys):
     print(out)
     assert descr in out
     # Last number is the value
-    # Here memory actually corresponds to `consume` + 39M overhead Python + numpy
-    assert float(out.split()[-1]) > consume
-
+    # For some reason, the actual memory usage is smaller than
+    # expected 10M
+    measure = float(out.split()[-1])
+    print('Memory measure', measure)
+    assert np.isclose(measure, consume, rtol=1e-2)
