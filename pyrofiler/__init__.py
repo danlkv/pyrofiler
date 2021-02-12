@@ -20,9 +20,4 @@ from pyrofiler.contextmanagers import (
      timing
 )
 
-
-# syntax sugar
-from pyrofiler import decorators_background as d
-from pyrofiler import contextmanagers as c
-
 from pyrofiler.pyrofiler import Profiler

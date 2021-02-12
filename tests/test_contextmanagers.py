@@ -21,7 +21,7 @@ def test_time():
 
     measure = time_prof.result
     assert np.isclose(
-        measure, 0.3, rtol=1e-2)
+        measure, 0.3, rtol=5e-3)
 
 
 def test_mem():
