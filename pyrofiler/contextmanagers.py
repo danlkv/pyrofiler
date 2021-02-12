@@ -15,6 +15,7 @@ def measure2context(measure):
     @contextmanager
     def measuring_manager(*m_args, **m_kwargs):
         # -- Getting result from measure
+        #st = time.time()
         q = queue.Queue()
         clb = m_kwargs.pop('callback', None)
         def callback(res, *args, **kwargs):
@@ -27,13 +28,18 @@ def measure2context(measure):
         killpill = pyrofiler.threading.start_in_thread(
             measure, *m_args, **m_kwargs)
         killpill.get_result = lru_cache(q.get)
+        #print('starting overhead', time.time()-st)
         try:
             yield killpill
         except BaseException:
             killpill.stop()
             raise
+        #st = time.time()
         killpill.stop()
+        #print('stopping', time.time()-st)
+        #st = time.time()
         res = killpill.get_result()
+        #print('getting', time.time()-st)
         if isinstance(res, Exception):
             print('Exception while profiling:', res)
     return measuring_manager
@@ -41,12 +47,13 @@ def measure2context(measure):
 
 @contextmanager
 def timing(*args, callback=printer, **kwargs) -> None:
-    start = time.time()
     q = queue.Queue()
-    yield KillPill(
+    kp = KillPill(
         on_stop=lambda:None,
         get_result=lru_cache(q.get)
     )
+    start = time.time()
+    yield kp
     ellapsed_time = time.time() - start
     q.put(ellapsed_time)
     callback(ellapsed_time, *args, **kwargs)

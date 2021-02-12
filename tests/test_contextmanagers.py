@@ -14,8 +14,6 @@ def sizeof(obj):
 
 
 def test_time():
-    consume_bytes = 10*1000*1000 # 10MB
-
     with prof.timing() as time_prof:
         time.sleep(0.3)
 

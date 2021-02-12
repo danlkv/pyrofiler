@@ -1,6 +1,7 @@
 from threading import Thread
 import queue
 from time import sleep
+import time
 from functools import lru_cache
 
 
@@ -31,9 +32,11 @@ class WatchdogGen:
         while True:
             if self.running:
                 yield
-                sleep(.1)
-            else:
-                break
+            for _ in range(20):
+                if self.running:
+                    sleep(.0005)
+                else:
+                    return
 
     def stop(self):
         self.running = False
@@ -61,7 +64,7 @@ def start_in_thread(f, *args, **kwargs):
 
     def _onstop():
         gen.stop()
-        thread.join()
+        #thread.join()
 
     pill = KillPill(
         on_stop=_onstop,
@@ -70,7 +73,7 @@ def start_in_thread(f, *args, **kwargs):
         # numpy arrays, however.
         get_result=lru_cache(queue.get)
     )
-    #st = time() #--
+    #st = time.time() #--
     while True:
         if gen.started:
             break
@@ -78,8 +81,8 @@ def start_in_thread(f, *args, **kwargs):
             #print('wait for start')
             # A very small number is enough, since 
             # we just need to trigger a thread switch
-            sleep(0.0002)
-    #print('overhead thread start', time()-st) #--
+            sleep(0.00002)
+    #print('overhead thread start', time.time()-st) #--
 
     return pill
 
@@ -122,6 +125,7 @@ def threaded_with_queue(func, daemon=False):
         q = queue.Queue()
         t = Thread(target=wrapped_f, args=(q,)+args, kwargs=kwargs)
         t.daemon = daemon
+        # takes ~4 ms
         t.start()
         return t, q
 

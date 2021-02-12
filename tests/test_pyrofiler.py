@@ -9,11 +9,13 @@ import pytest
 
 from pyrofiler.pyrofiler import Profiler
 
+
 def sizeof(obj):
     size = sys.getsizeof(obj)
     if isinstance(obj, dict): return size + sum(map(sizeof, obj.keys())) + sum(map(sizeof, obj.values()))
     if isinstance(obj, (list, tuple, set, frozenset)): return size + sum(map(sizeof, obj))
     return size
+
 
 def test_time(capsys):
     descr = 'test descr'
@@ -85,7 +87,7 @@ def test_mem(capsys):
     # results in 5x size of actual valriable (75M - 24M). Why? (numpy does not do this)
     measure = p.data[descr]
     print('Memory measure', measure)
-    assert np.isclose(measure, consume+1000_000, rtol=9e-2)
+    assert np.isclose(measure, consume, rtol=2e-1)
 
 def test_mem_np(capsys):
     descr = 'test descr mem'
