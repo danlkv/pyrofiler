@@ -5,10 +5,7 @@ from pyrofiler.threading import KillPill
 from contextlib import contextmanager
 import time
 import queue
-
-
-def printer(result, description='Profile results'):
-    print(description, ':', result)
+from pyrofiler.callbacks import printer
 
 
 def measure2context(measure):
