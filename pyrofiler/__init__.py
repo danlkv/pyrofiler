@@ -6,10 +6,12 @@ __version__ = '0.1.5'
 
 import sys
 
+from . import callbacks
+from .callbacks import printer
 from pyrofiler.threading import threaded, threaded_with_queue
 from pyrofiler import measures
 from pyrofiler.decorators_foreground import (
-    timed, printer
+    timed
 )
 from pyrofiler.decorators_background import measure2decor
 from pyrofiler.d import (

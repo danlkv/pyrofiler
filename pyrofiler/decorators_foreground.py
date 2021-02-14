@@ -5,9 +5,7 @@ from functools import wraps
 import psutil
 import os
 from pyrofiler.threading import threaded_gen
-
-def printer(result, description='Profile results'):
-    print(description, ':', result)
+from pyrofiler.callbacks import printer
 
 
 def profile_decorator(profiler):

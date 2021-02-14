@@ -1,3 +1,6 @@
+def printer(result, description='Profile results'):
+    return
+    print(description, ':', result)
 
 def append(data, value, **kwargs):
     key = kwargs['description']

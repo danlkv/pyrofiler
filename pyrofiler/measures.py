@@ -1,9 +1,7 @@
 import psutil
 import os
 
-
-def printer(result, description='Profile results'):
-    print(description, ':', result)
+from pyrofiler.callbacks import printer
 
 
 def proc_count(gen, *args, callback=printer, **kwargs):
