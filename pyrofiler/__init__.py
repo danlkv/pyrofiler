@@ -2,7 +2,7 @@
 
 __author__ = """Dan Lykov"""
 __email__ = 'lkv97dn@gmail.com'
-__version__ = '0.1.5'
+__version__ = '0.1.7'
 
 import sys
 
