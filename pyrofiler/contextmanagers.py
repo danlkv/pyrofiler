@@ -5,7 +5,7 @@ from pyrofiler.threading import KillPill
 from contextlib import contextmanager
 import time
 import queue
-from pyrofiler.callbacks import printer
+import pyrofiler.callbacks as callbacks
 
 
 def measure2context(measure):
@@ -43,7 +43,7 @@ def measure2context(measure):
 
 
 @contextmanager
-def timing(*args, callback=printer, **kwargs) -> None:
+def timing(*args, callback=callbacks.default, **kwargs) -> None:
     q = queue.Queue()
     kp = KillPill(
         on_stop=lambda:None,

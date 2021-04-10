@@ -1,10 +1,10 @@
 import psutil
 import os
 
-from pyrofiler.callbacks import printer
+import pyrofiler.callbacks as callbacks
 
 
-def proc_count(gen, *args, callback=printer, **kwargs):
+def proc_count(gen, *args, callback=callbacks.default, **kwargs):
     pnames = set()
     res = None
     for res in gen:
@@ -17,7 +17,7 @@ def proc_count(gen, *args, callback=printer, **kwargs):
     return res
 
 
-def mem_util(gen, *args, subtract_overhead=True, callback=printer, **kwargs):
+def mem_util(gen, *args, subtract_overhead=True, callback=callbacks.default, **kwargs):
     utils = []
     res = None
     process = psutil.Process(os.getpid())
@@ -34,7 +34,7 @@ def mem_util(gen, *args, subtract_overhead=True, callback=printer, **kwargs):
     return res
 
 
-def cpu_util(gen, *args, callback=printer, **kwargs):
+def cpu_util(gen, *args, callback=callbacks.default, **kwargs):
     utils = []
     res = None
     for res in gen:

@@ -4,7 +4,7 @@ from pyrofiler import (
     , timing
     , cpu_util
     , mem_util
-    , printer
+    , callbacks
 )
 
 class Profiler:
@@ -31,11 +31,11 @@ class Profiler:
         return mem_util(desc, *args, callback=self._callback, *kwargs)
 
     def cb(self, result, label, **kwargs):
-        printer(result, label, **kwargs)
+        callbacks.default(result, label, **kwargs)
         self.data[label] = result
 
     def _cb_append(self, result, label, **kwargs):
-        printer(result, label, **kwargs)
+        callbacks.default(result, label, **kwargs)
         #
         x = self.data.get(label)
         if x is None:

@@ -5,7 +5,7 @@ from functools import wraps
 import psutil
 import os
 from pyrofiler.threading import threaded_gen
-from pyrofiler.callbacks import printer
+import pyrofiler.callbacks as callbacks
 
 
 def profile_decorator(profiler):
@@ -45,7 +45,7 @@ def profile_decorator(profiler):
     return _wrapper
 
 
-def timed(*args, callback=printer, **kwargs):
+def timed(*args, callback=callbacks.default, **kwargs):
     def decor(func):
         @wraps(func)
         def wrapped(*a,**kw):
