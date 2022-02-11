@@ -10,7 +10,7 @@ class MyProfiler(Profiler):
         self.use_append()
 
     def get_stats(self, label):
-        data = self.data[label]
+        data = [x['value'] for x in self.data[label]]
         return dict(
             mean=np.mean(data),
             max = np.max(data),
@@ -20,9 +20,14 @@ class MyProfiler(Profiler):
 
 prof = MyProfiler()
 pyrofiler.PROF = prof
+default_cb = prof._callback
+def my_callback(value, desc, reference=0):
+    default_cb(dict(reference=reference, value=value), desc)
+    
+prof._callback = my_callback
 
 def my_function(i):
-    with prof.timing('My_func_time'):
+    with prof.timing('My_func_time', reference=i):
         time.sleep(i)
 
 def main():
@@ -34,6 +39,4 @@ def main():
 main()
 print('Pyrofiler data', prof.data)
 print('Pyrofiler main', prof.data['Main'])
-print('Pyrofiler my_function sum', sum(prof.data['My_func_time']))
-print('Overhead of python/pyrofiler', prof.data['Main'][0] - sum(prof.data['My_func_time']))
 print('Stats', prof.get_stats('My_func_time'))
