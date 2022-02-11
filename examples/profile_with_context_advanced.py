@@ -1,4 +1,6 @@
 from pyrofiler import Profiler
+import pyrofiler
+import another_file
 import numpy as np
 import time
 
@@ -17,6 +19,7 @@ class MyProfiler(Profiler):
         )
 
 prof = MyProfiler()
+pyrofiler.PROF = prof
 
 def my_function(i):
     with prof.timing('My_func_time'):
@@ -26,6 +29,7 @@ def main():
     with prof.timing('Main'):
         for i in range(10):
             my_function(i/20)
+        another_file.func1()
 
 main()
 print('Pyrofiler data', prof.data)
