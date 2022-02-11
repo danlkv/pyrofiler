@@ -11,7 +11,7 @@ class Profiler:
     def __init__(self, callback=None):
         self.data = {}
         if callback is None:
-            self._callback = self.cb
+            self._callback = self._cb_default
         else:
             self._callback = callback
 
@@ -30,7 +30,7 @@ class Profiler:
     def mem(self, desc, *args, **kwargs):
         return mem_util(desc, *args, callback=self._callback, *kwargs)
 
-    def cb(self, result, label, **kwargs):
+    def _cb_default(self, result, label, **kwargs):
         callbacks.default(result, label, **kwargs)
         self.data[label] = result
 
