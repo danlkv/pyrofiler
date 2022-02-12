@@ -18,6 +18,21 @@ class Profiler:
     def use_append(self):
         self._callback = self._cb_append
 
+    def set_callback(self, callback):
+        """
+        Set the callback function that is called after each measurement
+
+        Args:
+            callback: a function
+        """
+        self._callback = callback
+
+    def get_callback(self):
+        """
+        Get the callback function
+        """
+        return self._callback
+
     def timing(self, desc, *args, **kwargs):
         return timing(desc, callback=self._callback, *args, **kwargs)
 

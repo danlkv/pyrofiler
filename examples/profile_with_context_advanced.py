@@ -20,11 +20,11 @@ class MyProfiler(Profiler):
 
 prof = MyProfiler()
 pyrofiler.PROF = prof
-default_cb = prof._callback
+default_cb = prof.get_callback()
 def my_callback(value, desc, reference=0):
     default_cb(dict(reference=reference, value=value), desc)
-    
-prof._callback = my_callback
+# set callback
+prof.set_callback(my_callback)
 
 def my_function(i):
     with prof.timing('My_func_time', reference=i):
