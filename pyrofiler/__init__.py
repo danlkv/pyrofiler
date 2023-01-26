@@ -20,11 +20,12 @@ from pyrofiler.decorators_foreground import (
 )
 from pyrofiler.decorators_background import measure2decor
 from pyrofiler.d import (
-     cpu_util, mem_util, proc_count,
+    cpu_util, mem_util, proc_count,
 )
 
 from pyrofiler.contextmanagers import (
-     timing
+    timing,
+    timing_gpu
 )
 
 from pyrofiler.pyrofiler import Profiler

@@ -55,6 +55,24 @@ def timing(*args, callback=callbacks.default, **kwargs) -> None:
     q.put(ellapsed_time)
     callback(ellapsed_time, *args, **kwargs)
 
+@contextmanager
+def timing_gpu(*args, callback=callbacks.default, **kwargs) -> None:
+    import torch
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+    q = queue.Queue()
+    kp = KillPill(
+        on_stop=lambda:None,
+        get_result=lru_cache(q.get)
+    )
+    start.record()
+    yield kp
+    end.record()
+    torch.cuda.synchronize()
+    ellapsed_time = start.elapsed_time(end)
+    q.put(ellapsed_time)
+    callback(ellapsed_time, *args, **kwargs)
+
 
 proc_count = measure2context(pyrofiler.measures.proc_count)
 cpu_util = measure2context(pyrofiler.measures.cpu_util)
