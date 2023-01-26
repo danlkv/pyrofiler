@@ -69,7 +69,7 @@ def timing_gpu(*args, callback=callbacks.default, **kwargs) -> None:
     yield kp
     end.record()
     torch.cuda.synchronize()
-    ellapsed_time = start.elapsed_time(end)
+    ellapsed_time = start.elapsed_time(end)/1000
     q.put(ellapsed_time)
     callback(ellapsed_time, *args, **kwargs)
 
